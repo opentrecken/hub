@@ -1,0 +1,24 @@
+---
+
+http:
+  routers:
+    grafana_http:
+      rule: "PathPrefix(`/`)"
+      entryPoints:
+        - http
+      middlewares:
+        - redirect_tls
+      service: grafana_http
+
+    grafana_http_tls:
+      rule: "PathPrefix(`/`)"
+      entryPoints:
+        - https
+      service: grafana_http
+      tls: {}
+
+  services:
+    grafana_http:
+      loadBalancer:
+        servers:
+          - url: http://grafana:3000

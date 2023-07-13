@@ -1,0 +1,58 @@
+global:
+  # Send anonymous usage data
+  sendAnonymousUsage: false
+
+## ssl richtung intern nicht pruefen
+serversTransport:
+  insecureSkipVerify: true
+
+## Static configuration
+entryPoints:
+  http:
+    address: ":80"
+
+  https:
+    address: ":443"
+
+  mqtt_tcp:
+    address: ":1883"
+
+  mqtt_websocket:
+    address: ":9001"
+
+  # traefik dashboard
+  traefik:
+    address: ":8080"
+
+
+
+providers:
+  file:
+    directory: /etc/traefik/static/
+    watch: true
+
+api:
+  dashboard: true
+  insecure: true
+  debug: true
+
+log:
+  #filePath: "/var/log/traefik.log"
+  format: common
+  level: INFO
+
+accessLog:
+  #filePath: "/var/log/traefik_access.log"
+  bufferingSize: 100
+
+metrics:
+  prometheus:
+    buckets:
+      - 0.1
+      - 0.3
+      - 1.2
+      - 5.0
+    addEntryPointsLabels: true
+    addRoutersLabels: true
+    addServicesLabels: true
+    entryPoint: traefik

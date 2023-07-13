@@ -1,0 +1,25 @@
+# ---
+# rule to access node-red on :80/:443
+
+# http:
+#   routers:
+#     nodered_http:
+#       rule: "PathPrefix(`/`)"
+#       entryPoints:
+#         - http
+#       middlewares:
+#         - redirect_tls
+#       service: nodered_http
+
+#     nodered_http_tls:
+#       rule: "PathPrefix(`/`)"
+#       entryPoints:
+#         - https
+#       service: nodered_http
+#       tls: {}
+
+#   services:
+#     nodered_http:
+#       loadBalancer:
+#         servers:
+#           - url: http://nodered:1880

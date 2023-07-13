@@ -1,0 +1,27 @@
+http:
+  routers:
+    router_http:
+      rule: "PathPrefix(`/`)"
+      entryPoints:
+        - mqtt_websocket
+      service: mosquitto_websocket
+
+  services:
+    mosquitto_websocket:
+      loadBalancer:
+        servers:
+          - url: http://mosquitto:9001
+
+tcp:
+  routers:
+    mosquitto_tcp:
+      rule: "HostSNI(`*`)"
+      entryPoints:
+        - "mqtt_tcp"
+      service: mosquitto_tcp
+
+  services:
+    mosquitto_tcp:
+      loadBalancer:
+        servers:
+        - address: "mosquitto:1883"

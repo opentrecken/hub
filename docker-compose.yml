@@ -1,0 +1,84 @@
+---
+# docker-compose file for opentrecken
+version: "3"
+services:
+  traefik:
+    image: traefik:latest
+    restart: always
+    user: 0:0
+    ports:
+      - "0.0.0.0:80:80/tcp"
+      - "0.0.0.0:443:443/tcp"
+
+      # mosquitto MQTT 
+      - "0.0.0.0:1883:1883/tcp"
+      #mosquitto websocket
+      - "0.0.0.0:9001:9001/tcp"
+
+      # traefik dashboard
+      - "0.0.0.0:8080:8080/tcp"
+
+    volumes:
+      - "$PWD/config/traefik:/etc/traefik:rw"
+
+  prometheus:
+    image: prom/prometheus:latest
+    user: 0:0
+    command: --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path="/data/" --storage.tsdb.retention.size=10GB --web.enable-admin-api --web.enable-lifecycle  --web.page-title="t2coreNG"
+#    ports:
+#    - "0.0.0.0:9090:9090/tcp"
+    restart: always
+    volumes:
+      - "${PWD}/data/prometheus:/data:rw"
+      - "${PWD}/config/prometheus:/etc/prometheus:ro"
+
+  nodered:
+    image: nodered/node-red:latest
+    restart: always
+    user: 0:0
+#    ports:
+#      - "0.0.0.0:1880:1880/tcp"
+    volumes:
+      - "${PWD}/data/nodered:/data:rw"
+    environment:
+      - TZ=Europe/Berlin
+    # this is needed on my rpi with 32bit raspian/buster  
+    # otherwise is fails to start with 
+    #     #FailureMessage Object: 0xbeb1c58c
+    #     ./entrypoint.sh: line 14:     6 Trace/breakpoint trap   (core dumped) /usr/local/bin/node $NODE_OPTIONS node_modules/node-red/red.js --userDir /data $FLOWS "${@}"
+    security_opt:
+      - seccomp:unconfined
+
+  grafana:
+    image: grafana/grafana:latest
+    restart: always
+    user: 0:0
+#    ports:
+#      - "0.0.0.0:3000:3000/tcp"
+    volumes:
+      - "${PWD}/data/grafana:/var/lib/grafana:rw"
+
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    restart: always
+    user: 0:0
+#    ports:
+#      - "0.0.0.0:1883:1883/tcp"
+#      - "0.0.0.0:9001:9001/tcp"
+    volumes:
+     - "${PWD}/data/mosquitto/data:/mosquitto/data:rw"
+     - "${PWD}/data/mosquitto/logs:/mosquitto/logs:rw"
+     - "${PWD}/config/mosquitto:/mosquitto/config:rw"
+
+  tasmota-exporter:
+    # this image is as far as i know only avaiable for amd64
+    image: eugenezadyra/tasmota-exporter:latest
+    environment:
+      MQTT_HOSTNAME: mosquitto
+      MQTT_PORT: 1883
+      MQTT_USERNAME: user
+      MQTT_PASSWORD: password
+      PROMETHEUS_EXPORTER_PORT: 9092
+    # ports:
+    #   - '9092:9092'
+    restart: always
