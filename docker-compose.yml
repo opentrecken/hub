@@ -71,8 +71,13 @@ services:
      - "${PWD}/config/mosquitto:/mosquitto/config:rw"
 
   tasmota-exporter:
-    # this image is as far as i know only avaiable for amd64
     image: eugenezadyra/tasmota-exporter:latest
+    
+    # this image is as far as i know only avaiable for amd64
+    # to use the image from the source you can build it right away with the following
+    #image: local/tasmota-exporter:latest
+    #build: https://github.com/dyrkin/tasmota-exporter.git
+    
     environment:
       MQTT_HOSTNAME: mosquitto
       MQTT_PORT: 1883
