@@ -1,0 +1,35 @@
+# ---
+# rule to access the docs container on /docs and its /assets
+# needs url rewriting since the url in the container starts at $root not /docs/$root
+
+http:
+  routers:
+    opentreckendocs_http:
+      rule: "PathPrefix(`/docs`) || PathPrefix(`/assets`)"
+      entryPoints:
+        - http
+      middlewares:
+        - redirect_tls
+      service: opentreckendocs_http
+
+    opentreckendocs_http_tls:
+      rule: "PathPrefix(`/docs`) || PathPrefix(`/assets`)"
+      entryPoints:
+        - https
+      middlewares:
+        - opentreckendocs_stripprefix      
+      service: opentreckendocs_http
+      tls: {}
+  
+  middlewares:
+   # strip the prefic /docs from requests from the outside before forwarding to the service
+   opentreckendocs_stripprefix:
+      stripPrefix:
+        prefixes:
+        - "/docs"
+
+  services:
+    opentreckendocs_http:
+      loadBalancer:
+        servers:
+          - url: http://opentreckendocs:80

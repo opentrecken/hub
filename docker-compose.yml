@@ -87,3 +87,7 @@ services:
     # ports:
     #   - '9092:9092'
     restart: always
+
+  opentreckendocs:
+    image: ghcr.io/opentrecken/docs:latest
+    restart: always
