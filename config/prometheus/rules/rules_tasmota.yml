@@ -1,0 +1,31 @@
+---
+groups:
+- name: recording tasmota sensors to opentrecken
+  rules:
+
+  - record: opentrecken_temperature
+    expr: tasmota_status_sns_bmp280_temperature
+    labels:
+      sensortype: bmp280
+      unit: °C
+
+  - record: opentrecken_temperature
+    expr: tasmota_status_sns_sht3_x_temperature
+    labels:
+      sensortype: sht3
+      unit: °C
+
+
+- name: OpenTrecken
+  rules:
+  - alert: Temperature not in range
+    expr: opentrecken_temperature < 20 or opentrecken_temperature > 30
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Temperature not in range at {{ $labels.status_device_name}} / {{ $labels.status_topic }}"
+      description: "A temperature of a sensor is not in the configured range.\nThe current Value is: {{ $value }} {{ $labels.unit }}\nThe sensor type is: {{ $labels.sensortype }}\nLABELS: {{ $labels }}"
+
+
+

@@ -1,0 +1,53 @@
+global:
+  resolve_timeout: 5m
+  http_config: {}
+  smtp_hello: localhost
+  smtp_require_tls: true
+
+route:
+  receiver: 'growmaster-email'
+  routes:
+  - receiver: "growmaster-pager"
+    match:
+      severity: critical
+    continue: false
+
+  group_by:
+    - room
+    - status_device_name
+  group_wait: 5m
+  group_interval: 5m
+  repeat_interval: 24h
+
+inhibit_rules:
+- source_match:
+    severity: critical
+  target_match:
+    severity: warning
+  equal:
+  - alertname
+
+
+receivers: 
+
+  - name: 'growmaster-email'
+    email_configs:
+    - send_resolved: true
+      to: 'growmaster@example.com'
+      from: 'alertmanager@example.com'
+      smarthost: 'smtp.example.com:587'
+      auth_username: 'alertmanager@example.com'
+      auth_password: 'SercureMailserverPassword'
+      auth_secret: 'AnotherSecretPassword'
+      auth_identity: 'alertmanager@example.com'
+      headers:
+        Subject: '[OpenTrecken] {{ template "email.default.subject" . }}'
+      html: '{{ template "email.default.html" . }}'
+
+  - name: 'growmaster-pager'
+
+
+# The directory from which notification templates are read.
+templates: []
+
+

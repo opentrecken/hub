@@ -32,6 +32,18 @@ services:
       - "${PWD}/data/prometheus:/data:rw"
       - "${PWD}/config/prometheus:/etc/prometheus:ro"
 
+  alertmanager:
+    command: --config.file=/etc/alertmanager/alertmanager.yml --storage.path="/data/"
+    image: prom/alertmanager:latest
+    restart: always
+    user: 0:0
+    # port is optional. only used to access the webinterface
+    #ports:
+    #  - "0.0.0.0:9093:9093/tcp"
+    volumes:
+      - "${PWD}/data/alertmanager:/data:rw"
+      - "${PWD}/config/alertmanager:/etc/alertmanager"
+
   nodered:
     image: nodered/node-red:latest
     restart: always
